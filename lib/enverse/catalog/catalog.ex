@@ -3,5 +3,6 @@ defmodule Enverse.Catalog do
 
   resources do
     resource Enverse.Catalog.Dataset
+    resource Enverse.Catalog.Record
   end
 end

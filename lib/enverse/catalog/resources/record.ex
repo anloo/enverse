@@ -1,9 +1,9 @@
-defmodule Enverse.Catalog.Dataset do
+defmodule Enverse.Catalog.Record do
   use Ash.Resource,
     data_layer: AshPostgres.DataLayer
 
     postgres do
-      table "datasets"
+      table "records"
       repo Enverse.Repo
     end
 
@@ -24,17 +24,18 @@ defmodule Enverse.Catalog.Dataset do
         get? true
         filter expr(id == ^arg(:id))
       end
+
+      create do
+        accept([:variables, :metdata, :dataset_id])
+      end
     end
 
     attributes do
       uuid_primary_key :id
 
-      attribute :title, :string do
+      attribute :variables, :map do
         allow_nil? false
-      end
-
-      attribute :description, :string do
-        allow_nil? false
+        default %{}
       end
 
       attribute :metdata, :map do
@@ -44,6 +45,8 @@ defmodule Enverse.Catalog.Dataset do
     end
 
     relationships do
-      has_many :record, Enverse.Catalog.Record
+      belongs_to :dataset, Enverse.Catalog.Dataset do
+        attribute_writable? true
+      end
     end
 end
