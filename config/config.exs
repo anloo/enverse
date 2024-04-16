@@ -8,6 +8,9 @@
 import Config
 
 config :enverse,
+  ash_apis: [Enverse.Catalog]
+
+config :enverse,
   ecto_repos: [Enverse.Repo],
   generators: [timestamp_type: :utc_datetime]
 
