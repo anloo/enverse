@@ -28,6 +28,8 @@ defmodule Enverse.Catalog.Dataset do
 
     attributes do
       uuid_primary_key :id
+      create_timestamp :created_at
+      update_timestamp :updated_at
 
       attribute :title, :string do
         allow_nil? false
