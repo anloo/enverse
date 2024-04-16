@@ -33,6 +33,11 @@ defmodule Enverse.Catalog.Record do
     attributes do
       uuid_primary_key :id
 
+      attribute :latitude, :float
+      attribute :longitude, :float
+      attribute :elevation, :float
+      attribute :time, :datetime
+
       attribute :variables, :map do
         allow_nil? false
         default %{}
