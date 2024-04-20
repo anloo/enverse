@@ -43,6 +43,10 @@ defmodule Enverse.Catalog.Dataset do
         allow_nil? false
         default %{}
       end
+
+      attribute :descriptor, :map do
+        allow_nil? false
+      end
     end
 
     relationships do
