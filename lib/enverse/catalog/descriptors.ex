@@ -91,9 +91,19 @@ defmodule Enverse.Catalog.Descriptors.Dataset do
   use Ash.Resource,
     data_layer: :embedded
 
+  alias Ash.Changeset
+  alias Enverse.Catalog.Descriptors.Variable
+
   code_interface do
     define_for Enverse.Catalog
     define :create, action: :create
+  end
+
+  actions do
+    create :create do
+      primary? true
+      change before_action &autodiscover/1
+    end
   end
 
   attributes do
@@ -101,6 +111,37 @@ defmodule Enverse.Catalog.Descriptors.Dataset do
     attribute :longitude_source, :string
     attribute :elevation_source, :string
     attribute :time_source, :string
-    attribute :variables, {:array, Enverse.Catalog.Descriptors.Variable}
+    attribute :variables, {:array, Variable}, allow_nil?: false
   end
+
+  defp autodiscover(changeset) do
+    changeset
+    |> Changeset.change_new_attribute(
+      :latitude_source,
+      detect_source(
+        changeset.attributes,
+        :location,
+        [~r/lat(itude)?_dd/, ~r/lat(itude)?_deg/, "lat"]
+      )
+    )
+    |> Changeset.change_new_attribute(
+      :longitude_source,
+      detect_source(
+        changeset.attributes,
+        :location,
+        [~r/lon(gitude)?_dd/, ~r/lon(gitude)?_deg/, "lon"]
+      )
+    )
+  end
+
+  defp detect_source(%{variables: variables}, category, patterns) do
+    patterns
+    |> Enum.find_value(fn p ->
+      variables
+      |> Enum.filter(& &1.category == category)
+      |> Enum.map(& &1.target_name)
+      |> Enum.find_value(& &1 =~ p and &1)
+    end)
+  end
+
 end
