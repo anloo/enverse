@@ -44,6 +44,7 @@ defmodule Enverse.Catalog.Record do
 
   relationships do
     belongs_to :dataset, Enverse.Catalog.Dataset do
+      allow_nil? false
       attribute_writable? true
     end
   end
