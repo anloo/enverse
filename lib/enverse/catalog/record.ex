@@ -11,19 +11,10 @@ defmodule Enverse.Catalog.Record do
     define_for Enverse.Catalog
     define :create, action: :create
     define :read_all, action: :read
-    define :update, action: :update
-    define :destroy, action: :destroy
-    define :get_by_id, args: [:id], action: :by_id
   end
 
   actions do
-    defaults [:create, :read, :update, :destroy]
-
-    read :by_id do
-      argument :id, :uuid, allow_nil?: false
-      get? true
-      filter expr(id == ^arg(:id))
-    end
+    defaults [:create, :read]
 
     create do
       accept([:variables, :metdata, :dataset_id])
