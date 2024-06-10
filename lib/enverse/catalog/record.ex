@@ -7,6 +7,10 @@ defmodule Enverse.Catalog.Record do
     repo Enverse.Repo
   end
 
+  resource do
+    require_primary_key? false
+  end
+
   code_interface do
     define_for Enverse.Catalog
     define :create, action: :create
@@ -22,8 +26,6 @@ defmodule Enverse.Catalog.Record do
   end
 
   attributes do
-    uuid_primary_key :id
-
     attribute :latitude, :float
     attribute :longitude, :float
     attribute :elevation, :float
