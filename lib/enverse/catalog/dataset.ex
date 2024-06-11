@@ -1,4 +1,6 @@
 defmodule Enverse.Catalog.Dataset do
+  alias Enverse.Catalog.Descriptors
+
   use Ash.Resource,
     data_layer: AshPostgres.DataLayer
 
@@ -22,9 +24,11 @@ defmodule Enverse.Catalog.Dataset do
 
     create :create do
       primary? true
+      accept [:title, :description]
       argument :files, {:array, :struct} do
         allow_nil? false
       end
+      change before_action &autodescribe/1
       change after_action &save_files/2
     end
 
@@ -60,7 +64,7 @@ defmodule Enverse.Catalog.Dataset do
       default %{}
     end
 
-    attribute :descriptor, Enverse.Catalog.Descriptors.Dataset do
+    attribute :descriptor, Descriptors.Dataset do
       allow_nil? false
     end
   end
@@ -69,6 +73,30 @@ defmodule Enverse.Catalog.Dataset do
     has_many :record, Enverse.Catalog.Record
   end
 
+
+  defp autodescribe(changeset) do
+    [sample_file | _] =
+      changeset |> Ash.Changeset.get_argument(:files)
+
+    schema =
+      sample_file
+      |> Enverse.Catalog.DataSource.new
+      |> Enverse.Catalog.DataSource.to_schema
+
+    variables = schema |> Enum.map(
+      fn {source_name, data_type} ->
+        Descriptors.Variable.create!(%{
+          source_name: source_name,
+          data_type: data_type
+        })
+      end
+    )
+
+    changeset |> Ash.Changeset.change_attribute(
+      :descriptor,
+      Descriptors.Dataset.create!(%{variables: variables})
+    )
+  end
 
   defp save_files(changeset, result) do
     Enverse.Catalog.Storage.put(
