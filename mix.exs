@@ -60,7 +60,8 @@ defmodule Enverse.MixProject do
       {:bandit, "~> 1.2"},
       {:ash, "~> 2.21"},
       {:ash_postgres, "~> 1.5"},
-      {:ash_phoenix, "~> 1.3"}
+      {:ash_phoenix, "~> 1.3"},
+      {:explorer, "~> 0.8.2"}
     ]
   end
 
