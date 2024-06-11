@@ -9,7 +9,7 @@ defmodule Enverse.Catalog.Dataset do
 
   code_interface do
     define_for Enverse.Catalog
-    define :create, action: :create
+    define :create, args: [:files], action: :create
     define :read_all, action: :read
     define :update, action: :update
     define :destroy, action: :destroy
@@ -17,7 +17,15 @@ defmodule Enverse.Catalog.Dataset do
   end
 
   actions do
-    defaults [:create, :read, :update, :destroy]
+    defaults [:read, :update, :destroy]
+
+    create :create do
+      primary? true
+      argument :files, {:array, :struct} do
+        allow_nil? false
+      end
+      change after_action &save_files/2
+    end
 
     read :by_id do
       argument :id, :uuid, allow_nil?: false
@@ -52,4 +60,14 @@ defmodule Enverse.Catalog.Dataset do
   relationships do
     has_many :record, Enverse.Catalog.Record
   end
+
+
+  defp save_files(changeset, result) do
+    Enverse.Catalog.Storage.put(
+      changeset |> Ash.Changeset.get_attribute(:id),
+      changeset |> Ash.Changeset.get_argument(:files)
+    )
+    {:ok, result}
+  end
+
 end
