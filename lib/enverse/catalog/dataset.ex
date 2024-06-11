@@ -14,6 +14,7 @@ defmodule Enverse.Catalog.Dataset do
     define :update, action: :update
     define :destroy, action: :destroy
     define :get_by_id, args: [:id], action: :by_id
+    define :stored_files, args: [:dataset]
   end
 
   actions do
@@ -31,6 +32,13 @@ defmodule Enverse.Catalog.Dataset do
       argument :id, :uuid, allow_nil?: false
       get? true
       filter expr(id == ^arg(:id))
+    end
+
+    action :stored_files, {:array, :struct} do
+      argument :dataset, :struct do
+        allow_nil? false
+      end
+      run &list_files/2
     end
   end
 
@@ -70,4 +78,10 @@ defmodule Enverse.Catalog.Dataset do
     {:ok, result}
   end
 
+  defp list_files(input, _context) do
+    files = Enverse.Catalog.Storage.list(
+      input.arguments.dataset.id
+    )
+    {:ok, files}
+  end
 end
