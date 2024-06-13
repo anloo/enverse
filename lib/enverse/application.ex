@@ -10,6 +10,7 @@ defmodule Enverse.Application do
     children = [
       EnverseWeb.Telemetry,
       Enverse.Repo,
+      {Oban, Application.fetch_env!(:enverse, Oban)},
       {DNSCluster, query: Application.get_env(:enverse, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Enverse.PubSub},
       # Start the Finch HTTP client for sending emails

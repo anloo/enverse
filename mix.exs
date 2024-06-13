@@ -61,7 +61,8 @@ defmodule Enverse.MixProject do
       {:ash, "~> 2.21"},
       {:ash_postgres, "~> 1.5"},
       {:ash_phoenix, "~> 1.3"},
-      {:explorer, "~> 0.8.2"}
+      {:explorer, "~> 0.8.2"},
+      {:oban, "~> 2.17"}
     ]
   end
 

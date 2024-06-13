@@ -14,6 +14,11 @@ config :enverse,
   ecto_repos: [Enverse.Repo],
   generators: [timestamp_type: :utc_datetime]
 
+config :enverse, Oban,
+  engine: Oban.Engines.Basic,
+  queues: [ingestions: 5],
+  repo: Enverse.Repo
+
 # Configures the endpoint
 config :enverse, EnverseWeb.Endpoint,
   url: [host: "localhost"],
