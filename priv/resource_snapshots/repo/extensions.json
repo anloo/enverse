@@ -1,7 +1,9 @@
 {
   "installed": [
+    "ash-functions",
     "uuid-ossp",
     "citext",
     "postgis"
-  ]
+  ],
+  "ash_functions_version": 3
 }

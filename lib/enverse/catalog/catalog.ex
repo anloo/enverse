@@ -1,5 +1,5 @@
 defmodule Enverse.Catalog do
-  use Ash.Api
+  use Ash.Domain
 
   resources do
     resource Enverse.Catalog.Dataset

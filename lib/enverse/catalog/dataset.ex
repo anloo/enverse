@@ -2,6 +2,7 @@ defmodule Enverse.Catalog.Dataset do
   alias Enverse.Catalog.Descriptors
 
   use Ash.Resource,
+    domain: Enverse.Catalog,
     data_layer: AshPostgres.DataLayer
 
   postgres do
@@ -10,7 +11,6 @@ defmodule Enverse.Catalog.Dataset do
   end
 
   code_interface do
-    define_for Enverse.Catalog
     define :create, args: [:files], action: :create
     define :read_all, action: :read
     define :update, action: :update
@@ -28,8 +28,8 @@ defmodule Enverse.Catalog.Dataset do
       argument :files, {:array, :struct} do
         allow_nil? false
       end
-      change before_action &autodescribe/1
-      change after_action &save_files/2
+      change before_action &autodescribe/2
+      change after_action &save_files/3
     end
 
     read :by_id do
@@ -74,7 +74,7 @@ defmodule Enverse.Catalog.Dataset do
   end
 
 
-  defp autodescribe(changeset) do
+  defp autodescribe(changeset, _) do
     [sample_file | _] =
       changeset |> Ash.Changeset.get_argument(:files)
 
@@ -98,7 +98,7 @@ defmodule Enverse.Catalog.Dataset do
     )
   end
 
-  defp save_files(changeset, result) do
+  defp save_files(changeset, result, _) do
     Enverse.Catalog.Storage.put(
       changeset |> Ash.Changeset.get_attribute(:id),
       changeset |> Ash.Changeset.get_argument(:files)

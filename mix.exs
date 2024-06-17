@@ -58,9 +58,9 @@ defmodule Enverse.MixProject do
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.2"},
-      {:ash, "~> 2.21"},
-      {:ash_postgres, "~> 1.5"},
-      {:ash_phoenix, "~> 1.3"},
+      {:ash, "~> 3.0"},
+      {:ash_postgres, "~> 2.0"},
+      {:ash_phoenix, "~> 2.0"},
       {:explorer, "~> 0.8.2"},
       {:oban, "~> 2.17"}
     ]

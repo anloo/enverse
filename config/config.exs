@@ -8,7 +8,7 @@
 import Config
 
 config :enverse,
-  ash_apis: [Enverse.Catalog]
+  ash_domains: [Enverse.Catalog]
 
 config :enverse,
   ecto_repos: [Enverse.Repo],

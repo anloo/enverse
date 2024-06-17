@@ -1,5 +1,6 @@
 defmodule Enverse.Catalog.Record do
   use Ash.Resource,
+    domain: Enverse.Catalog,
     data_layer: AshPostgres.DataLayer
 
   postgres do
@@ -12,7 +13,6 @@ defmodule Enverse.Catalog.Record do
   end
 
   code_interface do
-    define_for Enverse.Catalog
     define :create, action: :create
     define :read_all, action: :read
   end
