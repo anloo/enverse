@@ -15,6 +15,7 @@ defmodule Enverse.Catalog.Record do
   code_interface do
     define :create, action: :create
     define :read_all, action: :read
+    define :filter, action: :by_filter
   end
 
   actions do
@@ -22,6 +23,16 @@ defmodule Enverse.Catalog.Record do
 
     create do
       accept([:variables, :metdata, :dataset_id])
+    end
+
+    read :by_filter do
+      argument :between, {:array, :datetime} do
+        constraints [min_length: 1, max_length: 2]
+      end
+      argument :within, {:array, :float} do
+        constraints [min_length: 4, max_length: 4]
+      end
+      prepare Enverse.Catalog.Record.Preparations.Filters
     end
   end
 
