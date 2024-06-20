@@ -28,8 +28,8 @@ defmodule Enverse.Catalog.Dataset do
       argument :files, {:array, :struct} do
         allow_nil? false
       end
-      change before_action &autodescribe/2
-      change after_action &save_files/3
+      change Enverse.Catalog.Dataset.Changes.Autodescribe
+      change Enverse.Catalog.Dataset.Changes.SaveFiles
     end
 
     read :by_id do
@@ -42,7 +42,7 @@ defmodule Enverse.Catalog.Dataset do
       argument :dataset, :struct do
         allow_nil? false
       end
-      run &list_files/2
+      run Enverse.Catalog.Dataset.Actions.ListFiles
     end
   end
 
@@ -71,45 +71,5 @@ defmodule Enverse.Catalog.Dataset do
 
   relationships do
     has_many :record, Enverse.Catalog.Record
-  end
-
-
-  defp autodescribe(changeset, _) do
-    [sample_file | _] =
-      changeset |> Ash.Changeset.get_argument(:files)
-
-    schema =
-      sample_file
-      |> Enverse.Catalog.DataSource.new
-      |> Enverse.Catalog.DataSource.to_schema
-
-    variables = schema |> Enum.map(
-      fn {source_name, data_type} ->
-        Descriptors.Variable.create!(%{
-          source_name: source_name,
-          data_type: data_type
-        })
-      end
-    )
-
-    changeset |> Ash.Changeset.change_attribute(
-      :descriptor,
-      Descriptors.Dataset.create!(%{variables: variables})
-    )
-  end
-
-  defp save_files(changeset, result, _) do
-    Enverse.Catalog.Storage.put(
-      changeset |> Ash.Changeset.get_attribute(:id),
-      changeset |> Ash.Changeset.get_argument(:files)
-    )
-    {:ok, result}
-  end
-
-  defp list_files(input, _context) do
-    files = Enverse.Catalog.Storage.list(
-      input.arguments.dataset.id
-    )
-    {:ok, files}
   end
 end
