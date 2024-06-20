@@ -13,17 +13,11 @@ defmodule Enverse.Catalog.Record do
   end
 
   code_interface do
-    define :create, action: :create
-    define :read_all, action: :read
     define :filter, action: :by_filter
   end
 
   actions do
-    defaults [:create, :read]
-
-    create do
-      accept([:variables, :metdata, :dataset_id])
-    end
+    defaults []
 
     read :by_filter do
       argument :between, {:array, :datetime} do
