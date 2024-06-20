@@ -38,7 +38,7 @@ defmodule Enverse.Catalog.Descriptors.Variable do
         one_of: [
           :location,
           :time,
-          :unkown,
+          :unknown,
         ]
       ]
     end
@@ -80,11 +80,11 @@ defmodule Enverse.Catalog.Descriptors.Variable do
       source_name =~ "lon" -> :location
       source_name =~ "dep" -> :location
       source_name =~ "alt" -> :location
-      true -> :unkown
+      true -> :unknown
     end
   end
 
   defp detect_category(%{data_type: :datetime}), do: :time
 
-  defp detect_category(_), do: :unkown
+  defp detect_category(_), do: :unknown
 end
