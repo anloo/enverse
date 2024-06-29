@@ -20,12 +20,17 @@ defmodule Enverse.Catalog.Record do
     defaults []
 
     read :by_filter do
+      argument :dataset, :struct do
+        allow_nil? false
+        constraints instance_of: Enverse.Catalog.Dataset
+      end
       argument :between, {:array, :datetime} do
         constraints [min_length: 1, max_length: 2]
       end
       argument :within, {:array, :float} do
         constraints [min_length: 4, max_length: 4]
       end
+      argument :criteria, :map
       prepare Enverse.Catalog.Record.Preparations.Filters
     end
   end
