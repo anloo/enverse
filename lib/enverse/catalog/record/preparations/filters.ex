@@ -59,54 +59,54 @@ defmodule Enverse.Catalog.Record.Preparations.Filters do
   defp filter_by_criteria(query) do
     case Ash.Query.get_argument(query, :criteria) do
       criteria when is_map(criteria) ->
-        %{descriptor: descriptor} =
-          Ash.Query.get_argument(query, :dataset)
-
-        filters = criteria |> Enum.reduce(
-          true,
-          fn {key, value}, expr ->
-            lookup = key |> to_string
-
-            [variable, predicate] =
-              case String.split(lookup, "__") do
-                [variable, predicate] ->
-                  [variable, predicate]
-                [variable] ->
-                  [variable, "eq"]
-              end
-
-            variable_descriptor = Enum.find(
-              descriptor.variables,
-              & &1.target_name == variable
-            )
-
-            case variable_descriptor do
-              %{data_type: data_type} ->
-                at_path = expr(get_path(^ref(:variables), ^variable))
-
-                case predicate do
-                  "eq" ->
-                    expr(type(^at_path, ^data_type) == ^value and expr)
-                  "gt" ->
-                    expr(type(^at_path, ^data_type) > ^value and expr)
-                  "gte" ->
-                    expr(type(^at_path, ^data_type) >= ^value and expr)
-                  "lt" ->
-                    expr(type(^at_path, ^data_type) < ^value and expr)
-                  "lte" ->
-                    expr(type(^at_path, ^data_type) <= ^value and expr)
-                end
-
-              _ ->
-                expr
-            end
-
-          end
-        )
-        Ash.Query.filter(query, ^filters)
-
+        Enum.reduce(criteria, query, & filter_variable(&2, &1))
       _ ->
         query
+    end
+  end
+
+  defp filter_variable(query, {variable, predicate}) do
+    case check_variable(query, variable) do
+      {:ok, %{data_type: type}} ->
+        Ash.Query.filter(
+          query,
+          ^filter_variable_expr(variable, predicate, type)
+        )
+      {:error, error} ->
+        Ash.Query.add_error(query, error)
+    end
+  end
+
+  defp filter_variable_expr(variable, predicate, type) do
+    base_expr = expr(get_path(^ref(:variables), ^variable))
+
+    case predicate do
+      %{eq: value} ->
+        expr(type(^base_expr, ^type) == ^value)
+      %{not_eq: value} ->
+        expr(type(^base_expr, ^type) != ^value)
+      %{gt: value} ->
+        expr(type(^base_expr, ^type) > ^value)
+      %{gte: value} ->
+        expr(type(^base_expr, ^type) >= ^value)
+      %{lt: value} ->
+        expr(type(^base_expr, ^type) < ^value)
+      %{lte: value} ->
+        expr(type(^base_expr, ^type) <= ^value)
+      %{in: value} when is_list(value) ->
+        expr(type(^base_expr, ^type) in ^value)
+    end
+  end
+
+  defp check_variable(query, variable) do
+    %{descriptor: %{variables: variables}} =
+      Ash.Query.get_argument(query, :dataset)
+
+    case Enum.find(variables, & &1.target_name == to_string(variable)) do
+      descriptor when is_map(descriptor) ->
+        {:ok, descriptor}
+      nil ->
+        {:error, "Invalid variable"}
     end
   end
 
